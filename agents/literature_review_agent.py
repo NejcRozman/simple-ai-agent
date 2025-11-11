@@ -2,7 +2,7 @@ import os
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, Annotated, Sequence, Literal
 from langchain_core.messages import BaseMessage, SystemMessage, HumanMessage, AIMessage, ToolMessage
-from operator import add
+from operator import add as add_messages
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -16,9 +16,9 @@ load_dotenv()
 PDF_DIRECTORY = "./research_papers/"
 PERSIST_DIRECTORY = "./RAGfiles_literature/"
 COLLECTION_NAME = "literature_review"
-CHUNK_SIZE = 1000
+CHUNK_SIZE = 10000
 CHUNK_OVERLAP = 200
-RETRIEVAL_K = 5
+RETRIEVAL_K = 3
 
 llm = ChatGoogleGenerativeAI(model="gemini-2.5-pro", temperature=0)
 embeddings = GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
@@ -144,7 +144,7 @@ def search_literature(query: str) -> str:
     Use this tool to answer questions about research papers, find specific information, 
     compare findings, or gather information for literature reviews.
     """
-    docs = retriever.get_relevant_documents(query)
+    docs = retriever.invoke(query)
     
     if not docs:
         return "No relevant information found in the research papers."
